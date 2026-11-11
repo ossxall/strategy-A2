@@ -1,0 +1,80 @@
+// This Pine Script® code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © MisinkoMaster
+
+//@version=6
+indicator("Pure Momentum Oscillator", overlay = false, behind_chart = false)
+///////////////////////////////////////////////////////////////////////
+//Import Libraries
+import TradingView/ta/14
+///////////////////////////////////////////////////////////////////////
+//Get User Defined Inputs
+len = input.int(45, "Lookback", step = 1, minval = 2,
+     group = "Pure Momentum Oscillator")
+l = input.float(0.05, "Long Treshhold", step = 0.001,
+     group = "Pure Momentum Oscillator")
+s = input.float(-0.05, "Short Treshhold", step = 0.001,
+     group = "Pure Momentum Oscillator")
+///////////////////////////////////////////////////////////////////////
+//Calculations
+oa = ta.ema(open, len)
+ha = ta.ema(high, len)
+la = ta.ema(low, len)
+ca = ta.ema(close, len)
+
+od = open * 2 - oa
+hd = high * 2 - ha
+ld = low * 2 - la
+cd = close * 2 - ca
+
+oda = ta.wma(od, len)
+hda = ta.wma(hd, len)
+lda = ta.wma(ld, len)
+cda = ta.wma(cd, len)
+
+atr = ta.atr(len)
+change = (cda - cda[1]) / atr
+///////////////////////////////////////////////////////////////////////
+//Trend Logic
+var trend = 0
+
+long = change > l  
+short = change < s
+
+if long
+    trend := 1
+if short 
+    trend := -1
+///////////////////////////////////////////////////////////////////////
+//Plotting
+colC = trend == 1 ? color.rgb(0, 255, 0, 60) : color.rgb(255, 0, 0, 60)
+col = trend == 1 ? color.rgb(0, 255, 0) : color.rgb(255, 0, 0)
+
+plotcandle(oda, hda, lda, cda, "Smoothed Price", color = colC, wickcolor = colC, bordercolor = colC, display = display.pane, force_overlay = true)
+plotcandle(open, high, low, close, "Original Price", color = col, wickcolor = col, bordercolor = col, display = display.pane, force_overlay = true)
+plot(cda, "Smoothed Close", col, 2, force_overlay = true)
+
+lp = plot(l, "Long Treshhold", color.rgb(0, 255, 0, 30), linewidth = 2, display = display.pane, force_overlay = false)
+sp = plot(s, "Short Treshhold", color.rgb(255, 0, 0, 30), linewidth = 2, display = display.pane, force_overlay = false)
+io = plot(change, "Momentum", col, 2, force_overlay = false)
+
+fill(lp, sp, color.rgb(44, 42, 42, 70))
+
+colFl = change > l and trend == 1 ? color.rgb(0, 255, 0, 50) : change < l and trend == 1 ? color.rgb(0, 255, 0, 70) : na 
+colFs = change < s and trend == -1 ? color.rgb(255, 0, 0, 50) : change > s and trend == -1 ? color.rgb(255, 0, 0, 70) : na
+
+fill(io, lp, colFl)
+fill(io, sp, colFs)
+
+
+///////////////////////////////////////////////////////////////////////
+// EMA 21 & EMA 55
+showEMA21 = input.bool(true, "Mostrar EMA 21", group = "Moving Averages")
+showEMA55 = input.bool(true, "Mostrar EMA 55", group = "Moving Averages")
+
+ema21 = ta.ema(close, 21)
+ema55 = ta.ema(close, 55)
+
+plot(showEMA21 ? ema21 : na, title = "EMA 21", color = color.orange, linewidth = 2, force_overlay = true)
+plot(showEMA55 ? ema55 : na, title = "EMA 55", color = color.aqua, linewidth = 2, force_overlay = true)
+
+
