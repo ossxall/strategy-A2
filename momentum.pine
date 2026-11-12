@@ -49,7 +49,7 @@ if short
 colC = trend == 1 ? color.rgb(0, 255, 0, 60) : color.rgb(255, 0, 0, 60)
 col = trend == 1 ? color.rgb(0, 255, 0) : color.rgb(255, 0, 0)
 
-plotcandle(oda, hda, lda, cda, "Smoothed Price", color = colC, wickcolor = colC, bordercolor = colC, display = display.pane, force_overlay = true)
+plotcandle(oda, hda, lda, cda, "Smoothed Price", color = colC, wickcolor = colC, bordercolor = colC, display = display.none, force_overlay = true)
 plotcandle(open, high, low, close, "Original Price", color = col, wickcolor = col, bordercolor = col, display = display.pane, force_overlay = true)
 plot(cda, "Smoothed Close", col, 2, force_overlay = true)
 
@@ -74,7 +74,20 @@ showEMA55 = input.bool(true, "Mostrar EMA 55", group = "Moving Averages")
 ema21 = ta.ema(close, 21)
 ema55 = ta.ema(close, 55)
 
-plot(showEMA21 ? ema21 : na, title = "EMA 21", color = color.orange, linewidth = 2, force_overlay = true)
-plot(showEMA55 ? ema55 : na, title = "EMA 55", color = color.aqua, linewidth = 2, force_overlay = true)
+plot(showEMA21 ? ema21 : na, title = "EMA 21", color = color.aqua, linewidth = 1, force_overlay = true)
+plot(showEMA55 ? ema55 : na, title = "EMA 55", color = color.orange, linewidth = 3, force_overlay = true)
 
 
+// Smoothed Close
+plot(cda, "Smoothed Close", col, 2, force_overlay = true)
+
+// Flecha en el extremo derecho de Smoothed Close
+plotshape(
+     barstate.islast ? cda : na,
+     title = "Smoothed Close Arrow",
+     style = shape.diamond,
+     location = location.absolute,
+     color = col,
+     size = size.small,
+     force_overlay = true
+)
